@@ -256,9 +256,5 @@ module.exports = function autotool(mod) {
             if (collections[coll].helper) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].gameId });
         }
         command.remove('autotool')
-        if (mod.game) {
-            mod.game.off('enter_loading_screen', reset)
-            mod.game.me.off('dismount', calcTools)
-        }
     }
 }
