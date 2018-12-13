@@ -1,0 +1,8 @@
+{
+    "disableAutoUpdate": false,
+    "name": "autotool",
+    "author": "NMods",
+    "description": "Automates gathering tools",
+    "version": "1.0",
+    "servers": ["https://raw.githubusercontent.com/nmods/autotool/master/"]
+}

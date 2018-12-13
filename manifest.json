@@ -1,0 +1,18 @@
+{
+	"files": {
+		"config.json": "070c53a465c3a7a7844a2d6b27f73376ac1a015081fdf735f911a8088a1dbc22",
+		"index.js": "c9832360d13a8a774e7b6ea70403a5c0d5280677b9d06db38148f08fc9a56fa0",
+		"module.json": "fd04efded9731587ae985e8e347596eb1670aac0cccb480bcb511198557e07e9"
+	},
+	"defs": {
+		"C_PLAYER_FLYING_LOCATION": 4,
+		"C_PLAYER_LOCATION": 5,
+		"C_USE_ITEM": 3,
+		"S_DESPAWN_COLLECTION": 2,
+		"S_DESPAWN_DROPITEM": 4,
+		"S_INVEN": 16,
+		"S_SPAWN_COLLECTION": 4,
+		"S_SPAWN_DROPITEM": 6,
+		"S_SPAWN_ME": 3
+	}
+}
