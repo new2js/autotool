@@ -89,14 +89,10 @@ module.exports = function autotool(mod) {
                 command.message(`Gathering node finder helper beams: ${config.helper ? 'enabled' : 'disabled'}`)
                 command.message(`Quest and non-gathering collection nodes: ${config.hide ? 'hidden' : 'spawned'}`)
                 break
-            case 'o':
-                console.log(other)
-                break
             default:
                 command.message('Valid arguments: pick, sickle, extractor, helper, info')
                 break
         }
-
         saveConfig()
     })
 
