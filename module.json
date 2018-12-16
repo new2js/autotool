@@ -3,6 +3,6 @@
     "name": "autotool",
     "author": "NMods",
     "description": "Automates gathering tools",
-    "version": "1.1",
+    "version": "1.11",
     "servers": ["https://raw.githubusercontent.com/nmods/autotool/master/"]
 }

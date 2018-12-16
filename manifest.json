@@ -4,8 +4,8 @@
 			"overwrite": false,
 			"hash": "441bd85e74cc9df13f84dba7a00ed3b241873e1f54abf7172bae1b0549b6b5fe"
 		},
-		"index.js": "f5d26653303bb362930bbbcf6377d00d30401adfabd387310372c8c938d3d619",
-		"module.json": "290250ffee9ecb35c5bffbe9863f8a4d14d62294665309ecab4e9b6b38366a80"
+		"index.js": "2695babeeb0e24d3841de565f58ffd6441c17f609b2537ee8aa644676577222a",
+		"module.json": "08f0b6fe2ab34e6e310cce707b4073f292577ded123ed5289740b1cc0ce5bfd2"
 	},
 	"defs": {
 		"C_PLAYER_FLYING_LOCATION": 4,
@@ -16,6 +16,7 @@
 		"S_INVEN": 16,
 		"S_SPAWN_COLLECTION": 4,
 		"S_SPAWN_DROPITEM": 6,
-		"S_SPAWN_ME": 3
+		"S_SPAWN_ME": 3,
+		"S_SYSTEM_MESSAGE": 1
 	}
 }

@@ -141,6 +141,18 @@ module.exports = function autotool(mod) {
         }
     })
 
+    mod.hook('S_SYSTEM_MESSAGE', 1, (event) => {
+        let data = mod.parseSystemMessage(event.message);
+        switch (data.id) {
+            case 'SMT_ITEM_USED_ACTIVE':
+                active = Math.floor((Number(data.tokens.ItemName.match(/\d+/)) - 206600) / 10)
+                break
+            case 'SMT_ITEM_USED_DEACTIVE':
+                if (Math.floor((Number(data.tokens.ItemName.match(/\d+/)) - 206600) / 10) == active) active = undefined
+                break
+        }
+    });
+
     mod.hook('C_PLAYER_LOCATION', 5, updateLocation);
     mod.hook('S_SPAWN_ME', 3, updateLocation)
     mod.hook('C_PLAYER_FLYING_LOCATION', 4, updateLocation)
@@ -183,7 +195,6 @@ module.exports = function autotool(mod) {
             let type = Math.floor(node.id / 100)
             let tool = currentTools[type]
             if (!tool || type == active) return
-            active = type
             // console.log(`Activating ${NAME[type]}`)
             useItem(tool.id, tool.dbid)
         }
