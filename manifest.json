@@ -2,10 +2,10 @@
 	"files": {
 		"config.json": {
 			"overwrite": false,
-			"hash": "070c53a465c3a7a7844a2d6b27f73376ac1a015081fdf735f911a8088a1dbc22"
+			"hash": "441bd85e74cc9df13f84dba7a00ed3b241873e1f54abf7172bae1b0549b6b5fe"
 		},
-		"index.js": "b01764e3499bcbf502bd66d49eda9094b44e9c57dfbc177ca735096b84b0ce26",
-		"module.json": "fd04efded9731587ae985e8e347596eb1670aac0cccb480bcb511198557e07e9"
+		"index.js": "f5d26653303bb362930bbbcf6377d00d30401adfabd387310372c8c938d3d619",
+		"module.json": "290250ffee9ecb35c5bffbe9863f8a4d14d62294665309ecab4e9b6b38366a80"
 	},
 	"defs": {
 		"C_PLAYER_FLYING_LOCATION": 4,

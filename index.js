@@ -29,22 +29,6 @@ module.exports = function autotool(mod) {
     command.add('autotool', (...args) => {
         args[0] = args[0].toLowerCase()
         switch (args[0]) {
-            case 'pick':
-            case 'sickle':
-            case 'extractor':
-                if (args[1] && ['disabled', 'disable', 'none', 'off'].includes(args[1].toLowerCase())) {
-                    config[args[0]] = null
-                    command.message(`Disabled auto-activating ${NICENAME[NAME.indexOf(args[0])]}`)
-                    return
-                }
-                if (!inventoryCache) {
-                    command.message('Please open your inventory before running this command')
-                    return
-                }
-                let newTool = getItemIdChatLink(args.slice(1).join(' '))
-                if (newTool) setTool(args[0], newTool)
-                else command.message('No item link. Please link an item using ctrl+click')
-                break
             case 'hide':
             case 'hideother':
             case 'unclutter':
@@ -75,12 +59,9 @@ module.exports = function autotool(mod) {
                 command.message('Your currently configured items:')
                 for (let type of ALL) {
                     let str = ''
-                    if (config[NAME[type]] && !currentTools[type]) {
-                        str += `<font color="#FF0000">Enabled in config but not found in inventory</font>`
-                    } else if (!config[NAME[type]]) {
-                        str += '<font color="#FF0000">Disabled in config</font>'
+                    if (!currentTools[type]) {
+                        str += `<font color="#FF0000">not found in inventory</font>`
                     } else {
-                        str += '<font color="#00FF00">Enabled - </font>'
                         str += link.replace(/%id/, currentTools[type].id).replace(/%dbid/, currentTools[type].dbid)
                     }
                     command.message(`${NICENAME[type]}: ${str}`)
@@ -95,26 +76,6 @@ module.exports = function autotool(mod) {
         }
         saveConfig()
     })
-
-    function getItemIdChatLink(chatLink) {
-        let regexId = /#(\d*)@/;
-        let id = chatLink.match(regexId);
-        if (id) return parseInt(id[1])
-        else return null
-    }
-
-    function setTool(name, id) {
-        let type = NAME.indexOf(name)
-        let searchResult = inventoryCache.find(item => item.id == id)
-        if (searchResult) {
-            currentTools[type] = searchResult
-            config[name] = currentTools[type].id
-            active=null
-            command.message(`${NICENAME[type]} configured - id: ${currentTools[type].id}`)
-        } else {
-            command.message(`Item id not found in inventory.`)
-        }
-    }
 
     mod.hook('S_SPAWN_COLLECTION', 4, event => {
         let type = Math.floor(event.id / 100)
@@ -162,7 +123,18 @@ module.exports = function autotool(mod) {
 
         if (!event.more) {
             for (let type of ALL) {
-                currentTools[type] = inventory.find(item => config[NAME[type]] == item.id)
+                let typeItemsTier = inventory.map(item => {
+                    if (Math.floor((item.id - 206600) / 10) == type) {
+                        return (item.id - 206600) % 10
+                    }
+                }).filter(item => item != undefined)
+                let bestTier = Math.max(...typeItemsTier)
+                if (bestTier != -Infinity) {
+                    let bestId = 206600 + type * 10 + bestTier
+                    currentTools[type] = inventory.find(item => item.id == bestId)
+                } else {
+                    currentTools[type] = undefined
+                }
             }
             inventoryCache = inventory
             inventory = null
@@ -177,7 +149,7 @@ module.exports = function autotool(mod) {
         currentLocation = {
             loc: event.loc,
             dest: event.dest,
-            w: event.w || currentLocation.w
+            w: event.w || (currentLocation ? currentLocation.w : 0)
         }
         calcTools()
     }
@@ -210,7 +182,7 @@ module.exports = function autotool(mod) {
             let node = collections[nearestGameId]
             let type = Math.floor(node.id / 100)
             let tool = currentTools[type]
-            if (!tool || type == active || !config[NAME[type]]) return
+            if (!tool || type == active) return
             active = type
             // console.log(`Activating ${NAME[type]}`)
             useItem(tool.id, tool.dbid)
