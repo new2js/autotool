@@ -13,6 +13,8 @@ Module for tera proxy.
 ## Usage
 - Your best tools in inventory are detected automatically
 - All commands start with `autotool` and are sent in `/8`(Proxy) channel
+- (no arguments): enable/disable the module
+  - `/8 autotool`
 - Hide/show unrelated nodes:
   - `hide`/`show`/`hideother`/`showall`/`unclutter`
   - Example:

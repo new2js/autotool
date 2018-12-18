@@ -14,7 +14,11 @@ module.exports = function autotool(mod) {
     try {
         config = require('./config.json')
     } catch (error) {
-        config = {}
+        config = {
+            hide: false,
+            helper: false,
+            enabled: true
+        }
     }
 
     let collections = [],
@@ -27,13 +31,14 @@ module.exports = function autotool(mod) {
         active
 
     command.add('autotool', (...args) => {
-        args[0] = args[0].toLowerCase()
+        if (args[0] && args[0].length > 0) args[0] = args[0].toLowerCase()
         switch (args[0]) {
             case 'hide':
             case 'hideother':
             case 'unclutter':
             case 'showall':
             case 'show':
+                if (config.hide === undefined) config.hide = false
                 config.hide = !config.hide
                 command.message(`Quest and non-gathering collection nodes ${config.hide ? 'hidden' : 'spawned'}`)
                 for (let coll in other) {
@@ -45,6 +50,7 @@ module.exports = function autotool(mod) {
                 }
                 break
             case 'helper':
+                if (config.helper === undefined) config.helper = false
                 config.helper = !config.helper
                 command.message(`Gathering node finder helper beams ${config.helper ? 'en' : 'dis'}abled`)
                 if (!config.helper) {
@@ -71,13 +77,25 @@ module.exports = function autotool(mod) {
                 command.message(`Quest and non-gathering collection nodes: ${config.hide ? 'hidden' : 'spawned'}`)
                 break
             default:
-                command.message('Valid arguments: pick, sickle, extractor, helper, info')
+                if (config.enabled === undefined) config.enabled = true
+                config.enabled = !config.enabled
+                command.message(`Module: ${config.enabled ? 'enabled' : 'disabled'}`)
+                if (!config.enabled) {
+                    for (let coll in collections) {
+                        if (collections[coll].helper) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].gameId });
+                    }
+                    for (let coll in other) {
+                        mod.send('S_SPAWN_COLLECTION', 4, other[coll])
+                    }
+                    reset()
+                }
                 break
         }
         saveConfig()
     })
 
     mod.hook('S_SPAWN_COLLECTION', 4, event => {
+        if (!config.enabled) return
         let type = Math.floor(event.id / 100)
         if (!ALL.includes(type)) {
             other[Number(event.gameId)] = event
@@ -106,6 +124,7 @@ module.exports = function autotool(mod) {
 
     })
     mod.hook('S_DESPAWN_COLLECTION', 2, event => {
+        if (!config.enabled) return
         if (other[event.gameId]) {
             delete other[event.gameId]
             return
@@ -119,6 +138,7 @@ module.exports = function autotool(mod) {
     })
 
     mod.hook('S_INVEN', 16, event => {
+        if (!config.enabled) return
         inventory = inventory ? inventory.concat(event.items) : event.items
 
         if (!event.more) {
@@ -142,6 +162,7 @@ module.exports = function autotool(mod) {
     })
 
     mod.hook('S_SYSTEM_MESSAGE', 1, (event) => {
+        if (!config.enabled) return
         let data = mod.parseSystemMessage(event.message);
         switch (data.id) {
             case 'SMT_ITEM_USED_ACTIVE':
@@ -158,6 +179,7 @@ module.exports = function autotool(mod) {
     mod.hook('C_PLAYER_FLYING_LOCATION', 4, updateLocation)
 
     function updateLocation(event) {
+        if (!config.enabled) return
         currentLocation = {
             loc: event.loc,
             dest: event.dest,

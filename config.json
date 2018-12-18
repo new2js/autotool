@@ -1,4 +1,5 @@
 {
 	"helper": false,
-	"hide": false
+	"hide": false,
+	"enabled": true
 }
