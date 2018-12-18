@@ -195,6 +195,7 @@ module.exports = function autotool(mod) {
             let type = Math.floor(node.id / 100)
             let tool = currentTools[type]
             if (!tool || type == active) return
+            active = type
             // console.log(`Activating ${NAME[type]}`)
             useItem(tool.id, tool.dbid)
         }
