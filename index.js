@@ -137,7 +137,7 @@ module.exports = function autotool(mod) {
         delete collections[event.gameId];
     })
 
-    mod.hook('S_INVEN', 16, event => {
+    mod.hook('S_INVEN', 17, event => {
         if (!config.enabled) return
         inventory = inventory ? inventory.concat(event.items) : event.items
 
