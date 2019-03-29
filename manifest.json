@@ -4,7 +4,7 @@
 			"overwrite": false,
 			"hash": "486726e5b098a97ee4a614d0754b2ed7dc4dd5b006f7e1b33a09979eafeaf5bb"
 		},
-		"index.js": "a27ffca39de8d802f33da14a7703d1770aaae609bdc082bc884b736224fee2fc",
+		"index.js": "ce1c4792f5ce02f423a1096bdf5207ad308db3db3c7533098298fee21a25b16c",
 		"module.json": "1a4b8726f85d99b28a1b1a1ebb8159f35af07522e337ae75b1c7d14d54878b5c"
 	},
 	"defs": {
@@ -15,7 +15,7 @@
 		"S_DESPAWN_DROPITEM": 4,
 		"S_INVEN": 18,
 		"S_SPAWN_COLLECTION": 4,
-		"S_SPAWN_DROPITEM": 6,
+		"S_SPAWN_DROPITEM": 7,
 		"S_SPAWN_ME": 3,
 		"S_SYSTEM_MESSAGE": 1
 	}

@@ -107,7 +107,7 @@ module.exports = function autotool(mod) {
             collections[Number(event.gameId)].helper = true
             event.gameId = event.gameId & BigInt(0xFFFF);
             event.loc.z -= 1000
-            mod.toClient('S_SPAWN_DROPITEM', 6, {
+            mod.toClient('S_SPAWN_DROPITEM', 7, {
                 gameId: event.gameId,
                 loc: event.loc,
                 item: 98260,
@@ -118,7 +118,8 @@ module.exports = function autotool(mod) {
                 enchant: 0,
                 source: BigInt(0),
                 debug: false,
-                owners: [{ id: 0 }]
+                owners: [{ id: 0 }],
+                ownerName:''
             });
         }
 
