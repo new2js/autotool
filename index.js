@@ -5,7 +5,27 @@ const PLANTS = 0,
     ENERGY = 2,
     ALL = [PLANTS, STONES, ENERGY],
     NICENAME = ['Sickle', 'Pi\u200bckaxe', 'Extractor'], // zero-width space character \u200b used to prevent censor of "Picka"
-    NAME = ['sickle', 'pick', 'extractor']
+    NAME = ['sickle', 'pick', 'extractor'],
+    NODES = {
+        1: ['harmony hrass', 'harmony', 'grass'],
+        2: ['wild cobseed', 'cobseed', 'corn'],
+        3: ['wild veridia', 'veridia', 'carrot'],
+        4: ['orange mushroom', 'mushroom'],
+        5: ['moongourd'],
+        6: ['apple tree', 'apple'],
+        101: ['plain stone', 'stone'],
+        102: ['cobala ore', 'cobala', 'coba'],
+        103: ['shadmetal ore', 'shadmetal', 'shad'],
+        104: ['xermetal ore', 'xermetal', 'xer'],
+        105: ['normetal ore', 'normetal', 'nor'],
+        106: ['galborne ore', 'galborne', 'gal'],
+        201: ['achromic essence', 'achromic'],
+        202: ['crimson essence', 'crimson'],
+        203: ['earth essence', 'earth'],
+        204: ['azure essence', 'azure'],
+        205: ['opal essence', 'opal'],
+        206: ['obsidian essence', 'obsidian']
+    }
 
 module.exports = function autotool(mod) {
     const command = mod.command || mod.require.command
@@ -28,7 +48,9 @@ module.exports = function autotool(mod) {
         inventory,
         inventoryCache,
         currentTools = [],
-        active
+        active,
+        helperIdStart = 1111111111,
+        helperIdEnd = helperIdStart
 
     command.add('autotool', (...args) => {
         if (args[0] && args[0].length > 0) args[0] = args[0].toLowerCase()
@@ -50,14 +72,57 @@ module.exports = function autotool(mod) {
                 }
                 break
             case 'helper':
-                if (config.helper === undefined) config.helper = false
-                config.helper = !config.helper
-                command.message(`Gathering node finder helper beams ${config.helper ? 'en' : 'dis'}abled`)
-                if (!config.helper) {
-                    for (let coll in collections) {
-                        if (collections[coll].helper) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].gameId });
-                    }
+                if (config.helper === undefined) config.helper = true
+                if (args[1] && args[1].length > 0) args[1] = args[1].toLowerCase()
+                switch (args[1]) {
+                    case 'reset':
+                        config.helperWhitelist = []
+                        command.message('Helper whitelist cleared, showing beam on all nodes again')
+                        break
+                    case 'list':
+                    case 'l':
+                        let list = ''
+                        for (let value of config.helperWhitelist) {
+                            list += NODES[value][0].split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ') + ', '
+                        }
+                        list.slice(0, -2)
+                        command.message('Helper whitelist: ' + list)
+                        break
+                    case '':
+                    case undefined:
+                        config.helper = !config.helper
+                        command.message(`Gathering node finder helper beams ${config.helper ? 'en' : 'dis'}abled`)
+                        break
+                    default:
+                        args.shift()
+                        args = args.join(' ')
+                        args.toLowerCase()
+                        let found = 0
+                        for (let n in NODES) {
+                            if (NODES[n].includes(args)) {
+                                if (config.helperWhitelist.includes(Number(n))) {
+                                    config.helperWhitelist.splice(config.helperWhitelist.indexOf(n))
+                                    found = 2
+                                } else {
+                                    config.helperWhitelist.push(Number(n))
+                                    found = 1
+                                }
+                                break
+                            }
+                        }
+                        if (found == 1) {
+                            command.message(`Added ${args} to helper beam whitelist`)
+                        } else if (found == 2) {
+                            command.message(`Removed ${args} from helper beam whitelist`)
+                        } else {
+                            command.message('Valid values:')
+                            for (let arr of Object.values(NODES)) {
+                                command.message(arr.join(', '))
+                            }
+                        }
+                        break
                 }
+                refreshHelper()
                 break
             case 'info':
                 let template = '<font color="#FDD017"><ChatLinkAction param="1#####%id@%dbid@%name">&lt;CLICK ME&gt;</ChatLinkAction></chat>'
@@ -82,7 +147,7 @@ module.exports = function autotool(mod) {
                 command.message(`Module: ${config.enabled ? 'enabled' : 'disabled'}`)
                 if (!config.enabled) {
                     for (let coll in collections) {
-                        if (collections[coll].helper) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].gameId });
+                        if (collections[coll].helperId) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].helperId });
                     }
                     for (let coll in other) {
                         mod.send('S_SPAWN_COLLECTION', 4, other[coll])
@@ -103,12 +168,12 @@ module.exports = function autotool(mod) {
             return
         }
         collections[Number(event.gameId)] = event
-        if (config.helper) {
-            collections[Number(event.gameId)].helper = true
-            event.gameId = event.gameId & BigInt(0xFFFF);
+        if (config.helper && (config.helperWhitelist.length == 0 || config.helperWhitelist.includes(event.id))) {
+            let helperId = helperIdEnd++
+            collections[Number(event.gameId)].helperId = helperId            
             event.loc.z -= 1000
             mod.toClient('S_SPAWN_DROPITEM', 7, {
-                gameId: event.gameId,
+                gameId: helperId,
                 loc: event.loc,
                 item: 98260,
                 amount: 1,
@@ -119,7 +184,7 @@ module.exports = function autotool(mod) {
                 source: BigInt(0),
                 debug: false,
                 owners: [{ id: 0 }],
-                ownerName:''
+                ownerName: ''
             });
         }
 
@@ -132,13 +197,13 @@ module.exports = function autotool(mod) {
         }
         let item = collections[Number(event.gameId)]
         if (!item) return
-        if (item.helper) {
-            mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[event.gameId].gameId });
+        if (item.helperId) {
+            mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: item.helperId });
         }
         delete collections[event.gameId];
     })
 
-    mod.hook('S_INVEN', 18, event => {
+    mod.hook('S_ITEMLIST', 3, event => {
         if (!config.enabled) return
         inventory = inventory ? inventory.concat(event.items) : event.items
 
@@ -178,6 +243,36 @@ module.exports = function autotool(mod) {
     mod.hook('C_PLAYER_LOCATION', 5, updateLocation);
     mod.hook('S_SPAWN_ME', 3, updateLocation)
     mod.hook('C_PLAYER_FLYING_LOCATION', 4, updateLocation)
+
+    function refreshHelper() {
+        for (let coll in collections) {
+            if (collections[coll].helperId) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].helperId });
+            collections[coll].helperId = undefined
+        }
+        helperIdEnd = helperIdStart
+        for (let coll in collections) {
+            if (config.helper && config.helperWhitelist.includes(collections[coll].id)) {
+                let helperId = helperIdEnd++
+                collections[coll].helperId = helperId
+                let loc = collections[coll].loc
+                loc.z -= 1000
+                mod.toClient('S_SPAWN_DROPITEM', 7, {
+                    gameId: helperId,
+                    loc: loc,
+                    item: 98260,
+                    amount: 1,
+                    expiry: 30000,
+                    explode: false,
+                    masterwork: false,
+                    enchant: 0,
+                    source: BigInt(0),
+                    debug: false,
+                    owners: [{ id: 0 }],
+                    ownerName: ''
+                });
+            }
+        }
+    }
 
     function updateLocation(event) {
         if (!config.enabled) return
@@ -219,7 +314,7 @@ module.exports = function autotool(mod) {
             let tool = currentTools[type]
             if (!tool || type == active) return
             active = type
-            // console.log(`Activating ${NAME[type]}`)
+            console.log(`Activating ${NAME[type]}`)
             useItem(tool.id, tool.dbid)
         }
     }
@@ -260,8 +355,10 @@ module.exports = function autotool(mod) {
 
     this.destructor = () => {
         for (let coll in collections) {
-            if (collections[coll].helper) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].gameId });
+            if (collections[coll].helperId) mod.toClient('S_DESPAWN_DROPITEM', 4, { gameId: collections[coll].helperId });
         }
         command.remove('autotool')
+        if (mod.game) mod.game.off('enter_loading_screen', reset)
+        if (mod.game.me) mod.game.me.off('dismount', calcTools)
     }
 }
